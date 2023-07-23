@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.scss';
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 
 function App() {
 
@@ -42,13 +43,18 @@ function App() {
           onChange={handleChange}
           />
           <label htmlFor='image'>
-            <img
+           {state.isUploaded 
+            &&
+             <img
               src={image}
-              alt={image.name}
-            />
+              alt={state.imageFile.name}
+            />}
             {!state.isUploaded
              ?
-              'Click here to choose your file'
+             <>
+             <SystemUpdateAltIcon />
+              Click here to choose your file, or drag it here
+              </>
               :
               state.imageFile.name
               }
