@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './App.scss';
-import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 function App() {
 
@@ -52,7 +52,7 @@ function App() {
             {!state.isUploaded
              ?
              <>
-             <SystemUpdateAltIcon />
+             <CloudUploadIcon className='icon'/>
               Click here to choose your file, or drag it here
               </>
               :
