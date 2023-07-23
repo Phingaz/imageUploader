@@ -10,9 +10,6 @@ function App() {
   })
 
   const handleChange = (e) => {
-    setState({
-      isUploaded: false
-    })
     setImage(URL.createObjectURL(e.target.files[0]));
     setState({
       isUploaded: true,
@@ -22,10 +19,12 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(image)
-    setState({
+    setState(p => ({
+      ...p,
       isUploaded: true
-    })
+    }))
+    const {imageFile} = state
+    console.log(imageFile)
   }
 
   return (
