@@ -24,7 +24,7 @@ export const Form = () => {
     }
 
     const handleChange = (e) => {
-        const fileName = e.dataTransfer.files[0].name
+        const fileName = e.target.files[0].name
         if (!checkFileType(fileName) || e.dataTransfer.files.length !== 1) {
             handleCancel()
             setState(p => ({
