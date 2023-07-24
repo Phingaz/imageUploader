@@ -126,3 +126,9 @@ $pd-lg: 20px;
         color: green;
     }
 }
+
+@media (max-width:500px) {
+    .content {
+        width: 85%;
+    }
+}
