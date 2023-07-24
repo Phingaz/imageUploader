@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './Form.scss';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Uploading } from './Uploading';
 
 export const Form = () => {
 
@@ -11,6 +12,7 @@ export const Form = () => {
         isUploaded: false,
         imageFile: {},
         errorMessage: '',
+        isUploading: false,
         success: Boolean,
     })
 
@@ -25,7 +27,7 @@ export const Form = () => {
 
     const handleChange = (e) => {
         const fileName = e.target.files[0].name
-        if (!checkFileType(fileName) || e.dataTransfer.files.length !== 1) {
+        if (!checkFileType(fileName) || e.target.files.length !== 1) {
             handleCancel()
             setState(p => ({
                 ...p,
@@ -35,10 +37,11 @@ export const Form = () => {
             return
         }
         setImage(URL.createObjectURL(e.target.files[0]));
-        setState({
+        setState(p => ({
+            ...p,
             isUploaded: true,
             imageFile: e.target.files[0]
-        })
+        }))
     }
 
     const handleDrop = (e) => {
@@ -101,63 +104,75 @@ export const Form = () => {
             isUploaded: true
         }))
         const { imageFile } = state
-        console.log(imageFile)
+
+        setState(p => ({
+            ...p,
+            isUploading: true,
+        }))
     }
 
     return (
-
-        <div className='content'>
-            <h2>Upload your image</h2>
-            <p>Acceptable file format ({imagesExtension.map((el, i) =>
-                <span key={i}> {el} </span>)})
-            </p>
-
-            <form
-                onSubmit={handleSubmit}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragOut}
-                onDrop={handleDrop}
-                className='form'>
-                <input
-                    id='image'
-                    name='image'
-                    type='file'
-                    accept='image/*'
-                    onChange={handleChange}
-                />
-                <label
-                    className={`${state.isDragging && 'dropImage'}`}
-                    htmlFor='image'
-                >
-                    {state.isUploaded
-                        &&
-                        <img
-                            src={image}
-                            alt={state.imageFile.name}
-                        />}
-                    {!state.isUploaded
-                        ?
-                        <>
-                            <CloudUploadIcon className='icon' />
-                            {state.isDragging
-                                ? 'Drop image here' :
-                                `Click here to choose your file, or drag it here`}
-                        </>
-                        :
-                        state.imageFile.name
-                    }
-                </label>
-
-                <div className='btns'>
-                    <button>Upload</button>
-                    <button type='button' onClick={handleCancel}>Cancel</button>
-                </div>
+        <>
             {
-                !state.success
-                &&
-                <p className='error'>{state.errorMessage}</p>
+                state.isUploading
+                    ?
+                    <Uploading />
+                    :
+                    <div className='content'>
+                        <h2>Upload your image</h2>
+                        <p>Acceptable file format ({imagesExtension.map((el, i) =>
+                            <span key={i}> {el} </span>)})
+                        </p>
+
+                        <form
+                            onSubmit={handleSubmit}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragOut}
+                            onDrop={handleDrop}
+                            className='form'>
+                            <input
+                                id='image'
+                                name='image'
+                                type='file'
+                                accept='image/*'
+                                onChange={handleChange}
+                            />
+                            <label
+                                className={`${state.isDragging && 'dropImage'}`}
+                                htmlFor='image'
+                            >
+                                {state.isUploaded
+                                    &&
+                                    <img
+                                        src={image}
+                                        alt={state.imageFile.name}
+                                    />}
+                                {!state.isUploaded
+                                    ?
+                                    <>
+                                        <CloudUploadIcon className='icon' />
+                                        {state.isDragging
+                                            ? 'Drop image here' :
+                                            `Click here to choose your file, or drag it here`}
+                                    </>
+                                    :
+                                    state.imageFile.name
+                                }
+                            </label>
+
+                            <div className='btns'>
+                                <button>Upload</button>
+                                <button type='button' onClick={handleCancel}>Cancel</button>
+                            </div>
+                            {
+                                !state.success
+                                &&
+                                <p className='error'>{state.errorMessage}</p>
+                            }
+                        </form>
+                    </div>
             }
-            </form>
-        </div>
+        </>
+
     )
 }
