@@ -2,7 +2,11 @@ import "./Uploading.scss"
 
 
 export const Uploading = () => {
-  return (
-    <div>Uploading</div>
-  )
+
+    return (
+        <div className='uploading'>
+            <div className='custom_uploading'></div>
+            <p>Uploading</p>
+        </div>
+    )
 }

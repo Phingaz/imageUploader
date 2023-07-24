@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './Form.scss';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Uploading } from './Uploading';
+import copy from 'copy-to-clipboard'
 
 export const Form = () => {
 
@@ -13,7 +14,8 @@ export const Form = () => {
         imageFile: {},
         errorMessage: '',
         isUploading: false,
-        success: Boolean,
+        success: true,
+        responseLink: ''
     })
 
     const checkFileType = (fileName) => {
@@ -31,7 +33,7 @@ export const Form = () => {
             handleCancel()
             setState(p => ({
                 ...p,
-                success: false,
+                success: true,
                 errorMessage: 'Only a single image file can be uploaded',
             }))
             return
@@ -40,6 +42,7 @@ export const Form = () => {
         setState(p => ({
             ...p,
             isUploaded: true,
+            success: false,
             imageFile: e.target.files[0]
         }))
     }
@@ -50,11 +53,12 @@ export const Form = () => {
 
         const fileName = e.dataTransfer.files[0].name
         const img = e.dataTransfer.files[0]
+
         if (!checkFileType(fileName) || e.dataTransfer.files.length !== 1) {
             handleCancel()
             setState(p => ({
                 ...p,
-                success: false,
+                success: true,
                 errorMessage: 'Only a single image file can be uploaded',
             }))
             return
@@ -97,18 +101,46 @@ export const Form = () => {
         })
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        setState(p => ({
-            ...p,
-            isUploaded: true
-        }))
-        const { imageFile } = state
+    const handleCopy = (e) => {
+        copy(e)
+    }
 
+    const handleSubmit = async (e) => {
+        e.preventDefault()
         setState(p => ({
             ...p,
             isUploading: true,
         }))
+
+        try {
+            const cloud_name = process.env.REACT_APP_cloud_name
+            const upload_preset = process.env.REACT_APP_upload_preset
+
+            setState(p => ({
+                ...p,
+                isUploaded: true
+            }))
+
+            let formData = new FormData()
+            formData.append('file', state.imageFile, state.imageFile.name)
+            formData.append("upload_preset", upload_preset);
+
+            const upload = await fetch(`https://api.cloudinary.com/v1_1/${cloud_name}/upload`, {
+                method: "POST",
+                body: formData,
+            })
+            const response = await upload.json()
+            setState(p => ({
+                ...p,
+                success: true,
+                errorMessage: 'Image uploaded succesfully',
+                responseLink: response.secure_url,
+                isUploading: false,
+            }))
+        } catch (error) {
+            console.log(error)
+        }
+
     }
 
     return (
@@ -138,7 +170,7 @@ export const Form = () => {
                                 onChange={handleChange}
                             />
                             <label
-                                className={`${state.isDragging && 'dropImage'}`}
+                                className={`${state.isDragging && 'dropImage'} imgSpace`}
                                 htmlFor='image'
                             >
                                 {state.isUploaded
@@ -159,15 +191,27 @@ export const Form = () => {
                                     state.imageFile.name
                                 }
                             </label>
-
+                            {
+                                state.success
+                                &&
+                                <div
+                                    className={`${state.success ? 'show' : 'hide'}`}>
+                                    <input
+                                        id='link'
+                                        readOnly
+                                        value={state.responseLink}
+                                    />
+                                    <button onClick={() => handleCopy(state.responseLink)} type='button'>Copy</button>
+                                </div>
+                            }
                             <div className='btns'>
                                 <button>Upload</button>
-                                <button type='button' onClick={handleCancel}>Cancel</button>
+                                <button type='button' onClick={handleCancel}>Clear</button>
                             </div>
                             {
-                                !state.success
+                                state.success
                                 &&
-                                <p className='error'>{state.errorMessage}</p>
+                                <p className={`${state.success ? 'success' : 'error'}`}>{state.errorMessage}</p>
                             }
                         </form>
                     </div>
