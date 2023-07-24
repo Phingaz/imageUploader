@@ -14,7 +14,8 @@ export const Form = () => {
         imageFile: {},
         errorMessage: '',
         isUploading: false,
-        success: true,
+        success: false,
+        requested: null,
         responseLink: ''
     })
 
@@ -112,34 +113,42 @@ export const Form = () => {
             isUploading: true,
         }))
 
-        try {
-            const cloud_name = process.env.REACT_APP_cloud_name
-            const upload_preset = process.env.REACT_APP_upload_preset
+        const cloud_name = process.env.REACT_APP_cloud_name
+        const upload_preset = process.env.REACT_APP_upload_preset
 
+        setState(p => ({
+            ...p,
+            isUploaded: true
+        }))
+
+        let formData = new FormData()
+        formData.append('file', state.imageFile, state.imageFile.name)
+        formData.append("upload_preset", upload_preset);
+
+        const upload = await fetch(`https://api.cloudinary.com/v1_1/${cloud_name}/upload`, {
+            method: "POST",
+            body: formData,
+        })
+        const response = await upload.json()
+        if (!response.secure_url) {
             setState(p => ({
                 ...p,
-                isUploaded: true
-            }))
-
-            let formData = new FormData()
-            formData.append('file', state.imageFile, state.imageFile.name)
-            formData.append("upload_preset", upload_preset);
-
-            const upload = await fetch(`https://api.cloudinary.com/v1_1/${cloud_name}/upload`, {
-                method: "POST",
-                body: formData,
-            })
-            const response = await upload.json()
-            setState(p => ({
-                ...p,
-                success: true,
-                errorMessage: 'Image uploaded succesfully',
-                responseLink: response.secure_url,
+                requested: true,
+                success: false,
+                errorMessage: 'Upload failed!',
                 isUploading: false,
             }))
-        } catch (error) {
-            console.log(error)
+            return
         }
+        setState(p => ({
+            ...p,
+            success: true,
+            requested: true,
+            errorMessage: 'Image uploaded succesfully',
+            responseLink: response.secure_url,
+            isUploading: false,
+        }))
+
 
     }
 
@@ -195,7 +204,7 @@ export const Form = () => {
                                 state.success
                                 &&
                                 <div
-                                    className={`${state.success ? 'show' : 'hide'}`}>
+                                    className={`${state.requested && state.success ? 'show' : 'hide'}`}>
                                     <input
                                         id='link'
                                         readOnly
@@ -205,13 +214,13 @@ export const Form = () => {
                                 </div>
                             }
                             <div className='btns'>
-                                <button>Upload</button>
+                                <button disabled={!state.isUploaded ? true : false}>Upload</button>
                                 <button type='button' onClick={handleCancel}>Clear</button>
                             </div>
                             {
-                                state.success
+                                state.requested
                                 &&
-                                <p className={`${state.success ? 'success' : 'error'}`}>{state.errorMessage}</p>
+                                <p className={`${state.requested && state.success ? 'success' : 'error'}`}>{state.errorMessage}</p>
                             }
                         </form>
                     </div>

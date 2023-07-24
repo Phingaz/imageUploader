@@ -164,13 +164,13 @@ $pd-lg: 20px;
     }
 
     .error {
-        color: rgb(168, 168, 168);
         text-align: center;
+        color: rgba(255, 0, 0, 0.586);
     }
 
     .success {
-        color: rgb(168, 168, 168);
         text-align: center;
+        color: rgba(0, 128, 0, 0.697);
     }
 }
 
