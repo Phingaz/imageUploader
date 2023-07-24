@@ -19,6 +19,11 @@ $pd-lg: 20px;
         color: var(--hd-color)
     }
 
+    p {
+        font-size: 0.8rem;
+        margin-bottom: -30px;
+    }
+
     .form {
         display: flex;
         flex-direction: column;
