@@ -59,7 +59,8 @@ export const Form = () => {
             handleCancel()
             setState(p => ({
                 ...p,
-                success: true,
+                requested: true,
+                success: false,
                 errorMessage: 'Only a single image file can be uploaded',
             }))
             return
@@ -218,9 +219,16 @@ export const Form = () => {
                                 <button type='button' onClick={handleCancel}>Clear</button>
                             </div>
                             {
-                                state.requested
-                                &&
-                                <p className={`${state.requested && state.success ? 'success' : 'error'}`}>{state.errorMessage}</p>
+                                state.requested && state.success
+                                    ?
+                                    <p className='success'>{state.errorMessage}</p>
+                                    :
+                                    !state.requested || !state.success
+                                    ?
+                                    <p className='error'>{state.errorMessage}</p>
+                                    :
+                                    ""
+
                             }
                         </form>
                     </div>
